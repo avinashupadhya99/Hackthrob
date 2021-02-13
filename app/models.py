@@ -1,8 +1,7 @@
-import os
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String
 from sqlalchemy import create_engine
-from app.models import User
+import os
 
 Base = declarative_base()
 
@@ -11,10 +10,12 @@ engine = create_engine(
     echo=True                   # Log SQL queries to stdout
 )
 
-Base.metadata.create_all(engine)
+class User(Base):
+    """The User class corresponds to the "users" database table.
+    """
+    __tablename__ = 'users'
+    id      = Column(Integer, primary_key=True)
+    name    = Column(String(50))       
+    balance = Column(Integer)
 
-def get_users():
-    factory = sessionmaker(bind=engine)
-    session = factory()
-    users = session.query(User).all()
-    return users
+Base.metadata.create_all(engine)
