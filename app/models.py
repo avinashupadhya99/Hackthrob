@@ -23,7 +23,7 @@ class User(Base):
     name    = Column(String(50))       
     email = Column(String(50), unique=True)
     password = Column(String(25))
-    children = relationship("Child", secondary=user_skills_table)
+    children = relationship("Skill", secondary=user_skills_table)
 
 class Skill(Base):
     __tablename__ = 'skills'
