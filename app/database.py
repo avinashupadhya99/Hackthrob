@@ -2,7 +2,7 @@ import os
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from app.models import User, Skill
+from app.models import User, Hackathon, Skill
 
 Base = declarative_base()
 
@@ -25,10 +25,11 @@ def create_users(user):
     session = factory()
     new_user = User(name=user['name'], email=user['email'], password=user['password'])
     for skill in user['skills']:
-        print(skill)
         skillRecord = session.query(Skill).filter(Skill.name == skill).first()
-        print(skillRecord)
-        new_user.children.append(skillRecord)
+        new_user.skills.append(skillRecord)
+    for hackathon in user['hackathons']:
+        hackathonRecord = session.query(Hackathon).filter(Hackathon.name == hackathon).first()
+        new_user.hackathons.append(hackathonRecord)
     session.add(new_user)
     session.commit()
     return new_user
