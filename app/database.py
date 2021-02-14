@@ -19,6 +19,11 @@ def get_users():
     users = session.query(User).all()
     return users
 
+def get_user_by_id(id):
+    factory = sessionmaker(bind=engine)
+    session = factory()
+    user = session.query(User).get(id)
+    return user
 
 def create_users(user):
     factory = sessionmaker(bind=engine)
@@ -33,3 +38,9 @@ def create_users(user):
     session.add(new_user)
     session.commit()
     return new_user
+
+def get_skills():
+    factory = sessionmaker(bind=engine)
+    session = factory()
+    skills = session.query(Skill).all()
+    return skills

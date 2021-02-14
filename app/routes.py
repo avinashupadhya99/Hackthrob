@@ -1,5 +1,6 @@
 from app import app
-from app.database import get_users, create_users
+import json
+from app.database import create_users, get_skills, get_users, get_user_by_id
 from flask import jsonify, request
 
 @app.route('/')
@@ -10,7 +11,13 @@ def index():
 def users():
     users = get_users()
 
-    return jsonify(users)
+    return jsonify([i.serialize for i in users])
+
+@app.route('/skills')
+def skills():
+    skills = get_skills()
+
+    return jsonify([i.serialize for i in skills])
 
 @app.route('/users/new', methods=['POST'])
 def new_users():
@@ -28,3 +35,13 @@ def new_users():
         msg = "Internal error while creating new user"
         return jsonify({"error": msg}), 500
     return body
+
+@app.route('/user/<int:id>')
+def get_user(id):
+    user = get_user_by_id(id)
+    return jsonify(user.serialize)
+
+@app.route('/getmatch')
+def get_match():
+    user_id = request.args.get('user_id')
+    return user_id

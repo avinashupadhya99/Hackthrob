@@ -10,6 +10,12 @@ engine = create_engine(
     echo=True                   # Log SQL queries to stdout
 )
 
+def dump_date(value):
+    """Deserialize datetime object into string form for JSON processing."""
+    if value is None:
+        return None
+    return [value.strftime("%Y-%m-%d")]
+
 user_skills_table = Table('user_skills', Base.metadata,
     Column('user_id', Integer, ForeignKey('users.id')),
     Column('skill_id', Integer, ForeignKey('skills.id'))
@@ -31,10 +37,48 @@ class User(Base):
     skills = relationship("Skill", secondary=user_skills_table)
     hackathons = relationship("Hackathon", secondary=user_hackathons_table)
 
+    def __init__(self, id, name, email, password, skills, hackathons):
+        self.id = id
+        self.name = name
+        self.email = email
+        self.password = password
+        self.skills = skills
+        self.hackathons = hackathons
+        pass
+
+    @property
+    def serialize(self):
+        return {
+            'id'         : self.id,
+            'name'       : self.name,
+            'email'      : self.email,
+            'skills'  : self.serialize_skills,
+            'hackathons': self.serialize_hackathons
+        }
+    @property
+    def serialize_skills(self):
+       return [ item.serialize for item in self.skills]
+
+    @property
+    def serialize_hackathons(self):
+       return [ item.serialize for item in self.hackathons]
+
 class Skill(Base):
     __tablename__ = 'skills'
     id   = Column(Integer, primary_key=True)
     name = Column(String(20))
+
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+        pass
+
+    @property
+    def serialize(self):
+        return {
+            'id'         : self.id,
+            'name'       : self.name
+        }
 
 class Hackathon(Base):
     __tablename__ = 'hackathons'
@@ -42,6 +86,22 @@ class Hackathon(Base):
     name = Column(String(30))
     start = Column(Date)
     end = Column(Date)
+
+    def __init__(self, id, name, start, end):
+        self.id = id
+        self.name = name
+        self.start = start
+        self.end = end
+        pass
+
+    @property
+    def serialize(self):
+        return {
+            'id'    : self.id,
+            'name'  : self.name,
+            'start' : dump_date(self.start),
+            'end'   : dump_date(self.end)
+        }
 
 
 
